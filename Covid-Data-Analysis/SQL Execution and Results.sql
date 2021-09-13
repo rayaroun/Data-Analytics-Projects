@@ -326,3 +326,210 @@ from `data-analysis-projects.CovidExample.covid-data-deaths`
 where continent is not null
 group by location, population
 order by percentageDeath desc
+
+
+[
+  {
+    "location": "Peru",
+    "population": "33359415",
+    "highestDeathCount": "198764",
+    "percentageDeath": "0.595825796105837"
+  },
+  {
+    "location": "Hungary",
+    "population": "9634162",
+    "highestDeathCount": "30086",
+    "percentageDeath": "0.312284555729912"
+  },
+  {
+    "location": "Bosnia and Herzegovina",
+    "population": "3263459",
+    "highestDeathCount": "9995",
+    "percentageDeath": "0.3062701262678649"
+  },
+  {
+    "location": "North Macedonia",
+    "population": "2082661",
+    "highestDeathCount": "6259",
+    "percentageDeath": "0.30052898671459255"
+  },
+  {
+    "location": "Montenegro",
+    "population": "628051",
+    "highestDeathCount": "1800",
+    "percentageDeath": "0.28660092890545513"
+  }
+]
+
+
+
+-- Countries with highest death counts 
+
+select location,  population, MAX(total_deaths) as highestDeathCount--, max(( total_deaths/population )*100) as percentageDeath
+from `data-analysis-projects.CovidExample.covid-data-deaths`
+-- where location like 'Canada'
+where continent is not null
+group by location, population
+order by highestDeathCount desc
+
+[
+  {
+    "location": "United States",
+    "population": "332915074",
+    "highestDeathCount": "659970"
+  },
+  {
+    "location": "Brazil",
+    "population": "213993441",
+    "highestDeathCount": "586851"
+  },
+  {
+    "location": "India",
+    "population": "1393409033",
+    "highestDeathCount": "442874"
+  },
+  {
+    "location": "Mexico",
+    "population": "130262220",
+    "highestDeathCount": "267748"
+  },
+  {
+    "location": "Peru",
+    "population": "33359415",
+    "highestDeathCount": "198764"
+  },
+  {
+    "location": "Russia",
+    "population": "145912022",
+    "highestDeathCount": "189319"
+  }
+]
+
+
+-- Breaking things by continent 
+
+select location, MAX(total_deaths) as highestDeathCount--, max(( total_deaths/population )*100) as percentageDeath
+from `data-analysis-projects.CovidExample.covid-data-deaths`
+-- where location like 'Canada'
+where continent is null
+group by location
+order by highestDeathCount desc
+
+
+[
+  {
+    "location": "World",
+    "highestDeathCount": "4630613"
+  },
+  {
+    "location": "Europe",
+    "highestDeathCount": "1195692"
+  },
+  {
+    "location": "South America",
+    "highestDeathCount": "1140707"
+  },
+  {
+    "location": "Asia",
+    "highestDeathCount": "1081247"
+  },
+  {
+    "location": "North America",
+    "highestDeathCount": "1008217"
+  },
+  {
+    "location": "European Union",
+    "highestDeathCount": "760573"
+  },
+  {
+    "location": "Africa",
+    "highestDeathCount": "202878"
+  },
+  {
+    "location": "Oceania",
+    "highestDeathCount": "1857"
+  },
+  {
+    "location": "International",
+    "highestDeathCount": "15"
+  }
+]
+
+
+
+-- Global numbers counting the cummulative new cases and deaths and getting the percentage 
+
+select date, SUM(new_cases), SUM(new_deaths), (Sum( new_deaths ) / Sum( total_cases ) )* 100 as percentageNewDeaths
+from `data-analysis-projects.CovidExample.covid-data-deaths`
+where continent is not null
+group by date
+
+
+[
+
+	{
+    "date": "2020-01-23",
+    "totalNewCases": "98",
+    "totalNewDeaths": "1",
+    "percentageNewDeaths": "0.15267175572519084"
+  },
+  {
+    "date": "2020-01-24",
+    "totalNewCases": "286",
+    "totalNewDeaths": "8",
+    "percentageNewDeaths": "0.8501594048884166"
+  },
+  {
+    "date": "2020-01-25",
+    "totalNewCases": "492",
+    "totalNewDeaths": "16",
+    "percentageNewDeaths": "1.1165387299371947"
+  },
+  {
+    "date": "2020-01-26",
+    "totalNewCases": "685",
+    "totalNewDeaths": "14",
+    "percentageNewDeaths": "0.6610009442870632"
+  },
+  {
+    "date": "2020-01-27",
+    "totalNewCases": "809",
+    "totalNewDeaths": "26",
+    "percentageNewDeaths": "0.8882815169115136"
+  },
+  {
+    "date": "2020-01-28",
+    "totalNewCases": "2651",
+    "totalNewDeaths": "49",
+    "percentageNewDeaths": "0.8784510577267838"
+  },
+  {
+    "date": "2020-01-29",
+    "totalNewCases": "589",
+    "totalNewDeaths": "2",
+    "percentageNewDeaths": "0.03243067942273391"
+  }
+
+]
+
+
+
+
+-- Joining the tables and looking at Total population vs Vaccinations
+
+
+select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations,
+SUM( vac.new_vaccinations ) over (PARTITION  by dea.location order by dea.location, dea.date ) 
+from
+`data-analysis-projects.CovidExample.covid-data-deaths` dea
+join `data-analysis-projects.CovidExample.covid-data-vaccinationations` vac
+on dea.location = vac.location
+and dea.date = vac.date
+where dea.continent is not null
+order by 2,3
+
+
+
+
+
+
