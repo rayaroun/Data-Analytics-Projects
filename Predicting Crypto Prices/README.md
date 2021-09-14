@@ -1,0 +1,1 @@
+I would be using various machine learning libraries like Tensorflow and Scikitlearn to see if there is a way to predict the prices. 
