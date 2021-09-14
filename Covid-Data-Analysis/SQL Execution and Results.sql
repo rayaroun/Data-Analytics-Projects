@@ -519,7 +519,7 @@ group by date
 
 
 select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations,
-SUM( vac.new_vaccinations ) over (PARTITION  by dea.location order by dea.location, dea.date ) 
+SUM( vac.new_vaccinations ) over (PARTITION  by dea.location order by dea.location, dea.date ) as RollingPeopleVaccinated
 from
 `data-analysis-projects.CovidExample.covid-data-deaths` dea
 join `data-analysis-projects.CovidExample.covid-data-vaccinationations` vac
@@ -530,6 +530,101 @@ order by 2,3
 
 
 
+
+-- finding the number of people vaccinated 
+
+
+With PopVsVac
+as
+(
+
+select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations,
+SUM( vac.new_vaccinations ) over (PARTITION  by dea.location order by dea.location, dea.date ) as RollingPeopleVaccinated
+from
+`data-analysis-projects.CovidExample.covid-data-deaths` dea
+join `data-analysis-projects.CovidExample.covid-data-vaccinationations` vac
+on dea.location = vac.location
+and dea.date = vac.date
+where dea.continent is not null
+order by 2,3
+
+
+)
+select *, (RollingPeopleVaccinated/population)*100
+ from PopVsVac
+
+
+
+-- Finding out the percentage of people vaccinated in India. 200% means everyone is vaccinated. 
+
+With PopVsVac
+as
+(
+
+select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations,
+SUM( vac.new_vaccinations ) over (PARTITION  by dea.location order by dea.location, dea.date ) as RollingPeopleVaccinated
+from
+`data-analysis-projects.CovidExample.covid-data-deaths` dea
+join `data-analysis-projects.CovidExample.covid-data-vaccinationations` vac
+on dea.location = vac.location
+and dea.date = vac.date
+where dea.continent is not null
+order by 2,3
+
+
+),
+
+percenVac 
+as
+(
+select *, (RollingPeopleVaccinated/population)*100 as PercentageVaccinated
+from PopVsVac
+where location = 'India'
+)
+
+select * from percenVac 
+order by PercentageVaccinated DESC
+
+
+
+[
+  {
+    "continent": "Asia",
+    "location": "India",
+    "date": "2021-09-12",
+    "population": "1393409033",
+    "new_vaccinations": "6849164",
+    "RollingPeopleVaccinated": "670993877",
+    "PercentageVaccinated": "48.154839039284454"
+  },
+  {
+    "continent": "Asia",
+    "location": "India",
+    "date": "2021-09-11",
+    "population": "1393409033",
+    "new_vaccinations": "9314241",
+    "RollingPeopleVaccinated": "664144713",
+    "PercentageVaccinated": "47.66329895035207"
+  },
+  {
+    "continent": "Asia",
+    "location": "India",
+    "date": "2021-09-10",
+    "population": "1393409033",
+    "new_vaccinations": "3204492",
+    "RollingPeopleVaccinated": "654830472",
+    "PercentageVaccinated": "46.99484907099781"
+  },
+  {
+    "continent": "Asia",
+    "location": "India",
+    "date": "2021-09-09",
+    "population": "1393409033",
+    "new_vaccinations": "10359429",
+    "RollingPeopleVaccinated": "651625980",
+    "PercentageVaccinated": "46.76487410140106"
+  }
+]
 
 
 
