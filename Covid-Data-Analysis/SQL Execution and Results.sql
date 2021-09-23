@@ -237,9 +237,9 @@ order by 1,2 DESC
 
 select location,  population, MAX(total_cases) as highestInfectionCount, max(( total_cases/population )*100) as percentagePopulation
 from `data-analysis-projects.CovidExample.covid-data-deaths`
-where location like 'Canada'
+--where location like 'Canada'
 group by location, population
-order by 1,2 DESC
+order by 4 DESC
 
 [
   {
